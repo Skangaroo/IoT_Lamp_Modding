@@ -8,7 +8,7 @@
 // === BLE Settings ===
 #define SERVICE_UUID        "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
 #define CHARACTERISTIC_UUID "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
-
+#define DEFAULT_BRIGHTNESS 3500
 // === PWM Settings ===
 const int pwmPin = 21;     // Change as needed
 const int pwmChannel = 0;
@@ -17,6 +17,7 @@ const int pwmResolution = 12; // 8-bit (0–255)
 
 class MyCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) override {
+    Serial.println("rcvd something");
     String value = pCharacteristic->getValue();
     if (value.length() > 0) {
       int inputValue = atoi(value.c_str());
@@ -40,13 +41,13 @@ void setup() {
   // ledcSetup(pwmChannel, pwmFreq, pwmResolution);
   // ledcAttachPin(pwmPin, pwmChannel);
   // ledcAttachChannel(pwmPin, pwmFreq, pwmResolution, pwmChannel);
-  if(ledcAttach(pwmPin, pwmFreq, pwmResolution) == 0)
+  if(ledcAttach(pwmPin, pwmFreq, pwmResolution) != 0)
   {
-    Serial.println("PWM side error...");
+    ledcWrite(pwmPin, DEFAULT_BRIGHTNESS);
   };
 
   // === BLE Setup ===
-  BLEDevice::init("Smexy_Lamp");
+  BLEDevice::init("Smexy_Lamp[ESP32-S2]");
   BLEServer *pServer = BLEDevice::createServer();
   BLEService *pService = pServer->createService(SERVICE_UUID);
 
